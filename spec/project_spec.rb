@@ -16,6 +16,9 @@ describe Gem::Tasks::Project do
   let(:bundler_project_dir) { File.join(PROJECTS_DIR,'bundler-project') }
   let(:bundler_project)     { described_class.new(bundler_project_dir)  }
 
+  let(:subdir_project_dir) { File.join(PROJECTS_DIR,'subdir-project/project-root') }
+  let(:subdir_project)     { described_class.new(subdir_project_dir) }
+
   describe "directories" do
     let(:directory) { rubygems_project_dir }
 
@@ -39,6 +42,14 @@ describe Gem::Tasks::Project do
 
     it "must detect the SCM used" do
       expect(subject.scm).to eq(:git)
+    end
+
+    context "with subdir project" do
+      subject { subdir_project }
+
+      it "must detect the SCM used" do
+        expect(subject.scm).to eq(:git)
+      end
     end
   end
 
