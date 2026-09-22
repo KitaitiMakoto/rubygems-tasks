@@ -75,9 +75,7 @@ module Gem
         @root = root
         @name = File.basename(@root)
 
-        @scm, _ = SCM_DIRS.find do |scm,dir|
-                    File.directory?(File.join(@root,dir))
-                  end
+        @scm = find_scm(@root)
 
         Dir.chdir(@root) do
           @gemspecs = Hash[Dir['*.gemspec'].map { |path|
@@ -142,6 +140,40 @@ module Gem
         @bundler
       end
 
+      private
+
+      #
+      # Find SCM from root directory
+      #
+      # @param [String] root
+      #   The root directory of the project.
+      #
+      # @return [Symbol, nil]
+      #
+      def find_scm(root)
+        current_dir = File.expand_path(root)
+
+        until found = find_scm_from_dir(current_dir)
+          parent_dir = File.expand_path(File.join(current_dir, ".."))
+          break if parent_dir == current_dir
+
+          current_dir = parent_dir
+        end
+
+        found[0] if found
+      end
+
+      #
+      # @param [String] current_dir
+      #   Current directory to find SCM.
+      #
+      # @return [Array<Symbol, String>, nil]
+      #
+      def find_scm_from_dir(current_dir)
+        SCM_DIRS.find do |scm,dir|
+          File.directory?(File.join(current_dir,dir))
+        end
+      end
     end
   end
 end
